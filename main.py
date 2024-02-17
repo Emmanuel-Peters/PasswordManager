@@ -1,5 +1,6 @@
 from tkinter import *
-
+from tkinter import messagebox #Message box is NOT a class so that's why we needed this module.
+import password_generating_code, pyperclip
 PINK = "#e2979c"
 RED = "#e7305b"
 GREEN = "#9bdeac"
@@ -11,13 +12,43 @@ file_text = ''
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
+def password_generation():
+
+    new_password = password_generating_code.generate_password()
+    password_input.delete(0,END)
+    password_input.insert(0, new_password)
+    pyperclip.copy(new_password) #Copies password to the clipboard!
+
+
 def save():
     global file_text
 
-    with open("user_data.txt", "w") as user_data:
+    website = website_input.get()
+    email = email_input.get()
+    password = password_input.get()
+    #messagebox.showinfo(title="Title", message= 'Message') Left as reference
 
-        file_text += website_input.get() + ' | ' + email_input.get() + ' | ' + password_input.get() + '\n'
-        user_data.write(file_text)
+    if website == '' and len(password) == 0:
+        messagebox.askokcancel(message="No website or password entered!")
+        return
+    elif website == '': #Did 2 different checks for learning. Email check redundant.
+        messagebox.askokcancel(message="You didn't enter a website!!")
+        return
+    elif len(password) == 0:
+        messagebox.askokcancel(message="You didn't enter a password!")
+        return
+
+    is_ok = messagebox.askokcancel(title=website, message = f"These are the details entered.\n\n"
+        f"Website: {website}\nEmail: {email}\n "f"Password: {password}\n\nAre you okay with this?")
+
+
+    if is_ok:
+        with open("user_data.txt", "w") as user_data:
+            file_text += website + ' | ' + email + ' | ' + password + '\n'
+            user_data.write(file_text)
+
+
+
 
     website_input.delete(0,'end') #Deletes from 0th character to the 'end' character
     #email_input.delete(0, 'end')] #Assumes that you want to use the same email...
@@ -58,7 +89,7 @@ password_input.insert(END, string="Enter your password:")
 password_input.grid(column=1, row=3)
 
 # BUTTONS
-generatepassword_button = Button(text='Generate Password', width=14)
+generatepassword_button = Button(text='Generate Password', width=14, command = password_generation)
 generatepassword_button.grid(column=2, row=3)
 
 add_button = Button(text='Add', width=43, command=save)
